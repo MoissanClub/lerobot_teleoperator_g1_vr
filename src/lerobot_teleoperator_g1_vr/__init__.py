@@ -91,4 +91,14 @@ __all__ = [
     "sample_to_dict",
 ]
 
+# LeRobot discovers third-party plugins by importing the distribution package.
+# Keep the core contracts importable without LeRobot, but register when it exists.
+try:
+    from .lerobot_plugin import G1VRTeleoperator, G1VRTeleoperatorConfig
+except ModuleNotFoundError as exc:
+    if exc.name != "lerobot":
+        raise
+else:
+    __all__ += ["G1VRTeleoperator", "G1VRTeleoperatorConfig"]
+
 __version__ = "0.1.0"
