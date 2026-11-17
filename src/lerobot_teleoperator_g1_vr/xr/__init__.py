@@ -22,6 +22,12 @@ from .trace import (
     XRTraceIntegrityError,
 )
 from .types import XRController, XRPose, XRSample, XRTrackedPose
+from .xrobotoolkit import (
+    XRoboToolkitDependencyError,
+    XRoboToolkitSDK,
+    XRoboToolkitSource,
+    XRoboToolkitSourceConfig,
+)
 
 __all__ = [
     "AdvanceableClock",
@@ -49,6 +55,10 @@ __all__ = [
     "XRTraceExhaustedError",
     "XRTraceIntegrityError",
     "XRTrackedPose",
+    "XRoboToolkitDependencyError",
+    "XRoboToolkitSDK",
+    "XRoboToolkitSource",
+    "XRoboToolkitSourceConfig",
     "sample_from_dict",
     "sample_to_dict",
 ]

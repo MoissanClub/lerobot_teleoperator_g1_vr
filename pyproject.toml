@@ -19,6 +19,9 @@ classifiers = [
 ]
 dependencies = []
 
+[project.scripts]
+g1-vr-capture-xrobotoolkit = "lerobot_teleoperator_g1_vr.capture:main"
+
 [project.optional-dependencies]
 test = [
   "pytest>=8.0",
