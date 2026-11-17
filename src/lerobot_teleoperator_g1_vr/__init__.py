@@ -1,5 +1,6 @@
 """Composable VR input and G1 retargeting for LeRobot."""
 
+from .interaction import XRInteractionConfig, XRInteractionGuard
 from .retargeting import (
     G1RetargetDiagnostics,
     G1Retargeter,
@@ -61,6 +62,8 @@ __all__ = [
     "TraceReplaySource",
     "XRController",
     "XRInputSource",
+    "XRInteractionConfig",
+    "XRInteractionGuard",
     "XRPose",
     "XRSample",
     "XRSourceNotConnectedError",
