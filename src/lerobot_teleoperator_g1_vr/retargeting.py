@@ -24,6 +24,7 @@ class G1RetargeterConfig:
     clutch_threshold: float = 0.5
     max_sample_age_s: float = 0.25
     translation_scale: float = 1.0
+    seed_limit_tolerance_rad: float = 0.05
 
     def __post_init__(self) -> None:
         if self.embodiment != "g1_29":
@@ -37,6 +38,8 @@ class G1RetargeterConfig:
             value = getattr(self, name)
             if not math.isfinite(value) or value <= 0:
                 raise ValueError(f"{name} must be finite and positive")
+        if not math.isfinite(self.seed_limit_tolerance_rad) or self.seed_limit_tolerance_rad < 0:
+            raise ValueError("seed_limit_tolerance_rad must be finite and nonnegative")
 
 
 @dataclass(frozen=True, slots=True)
@@ -50,6 +53,8 @@ class G1RetargetDiagnostics:
     converged: bool | None = None
     position_error_m: tuple[float, float] | None = None
     orientation_error_rad: tuple[float, float] | None = None
+    seed_clipped: bool = False
+    maximum_seed_limit_violation_rad: float = 0.0
 
 
 @dataclass(frozen=True, slots=True)
@@ -171,6 +176,17 @@ class G129Retargeter(G1Retargeter):
             raise ValueError("kinematics must expose 14 named arm joint actions")
         self._action_keys = tuple(zero_action)
         self._action_features = MappingProxyType(dict.fromkeys(self._action_keys, float))
+        lower = getattr(self.kinematics, "lower", None)
+        upper = getattr(self.kinematics, "upper", None)
+        if (lower is None) != (upper is None):
+            raise ValueError("kinematics must expose both lower and upper limits or neither")
+        if lower is None:
+            self._lower = self._upper = None
+        else:
+            self._lower = _finite_vector(lower, self.ARM_DOF)
+            self._upper = _finite_vector(upper, self.ARM_DOF)
+            if any(low > high for low, high in zip(self._lower, self._upper, strict=True)):
+                raise ValueError("kinematics lower limits must not exceed upper limits")
 
     @property
     def embodiment(self) -> str:
@@ -187,7 +203,24 @@ class G129Retargeter(G1Retargeter):
         if not isinstance(sample, XRSample):
             raise TypeError("sample must be an XRSample")
         measured = _finite_vector(measured_arm_q, self.ARM_DOF)
-        action = self.control.action(sample.to_action_dict(), measured, now=self.clock.now())
+        seed = measured
+        maximum_violation = 0.0
+        if self._lower is not None and self._upper is not None:
+            maximum_violation = max(
+                max(low - value, value - high, 0.0)
+                for value, low, high in zip(measured, self._lower, self._upper, strict=True)
+            )
+            if maximum_violation > self.config.seed_limit_tolerance_rad:
+                raise ValueError(
+                    "measured_arm_q exceeds IK limits by "
+                    f"{maximum_violation:.6f} rad, above the configured "
+                    f"{self.config.seed_limit_tolerance_rad:.6f} rad tolerance"
+                )
+            seed = tuple(
+                min(max(value, low), high)
+                for value, low, high in zip(measured, self._lower, self._upper, strict=True)
+            )
+        action = self.control.action(sample.to_action_dict(), seed, now=self.clock.now())
         if set(action) != set(self._action_keys):
             raise ValueError("retargeted action keys do not match G1-29 arm features")
         engaged = tuple(bool(value) for value in self.control.engaged)
@@ -204,5 +237,7 @@ class G129Retargeter(G1Retargeter):
             converged=getattr(result, "converged", None),
             position_error_m=_pair(getattr(result, "position_error_m", None)),
             orientation_error_rad=_pair(getattr(result, "orientation_error_rad", None)),
+            seed_clipped=maximum_violation > 0.0,
+            maximum_seed_limit_violation_rad=maximum_violation,
         )
         return G1RetargetResult(action, diagnostics)

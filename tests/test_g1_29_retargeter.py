@@ -21,6 +21,8 @@ from lerobot_teleoperator_g1_vr import (
 
 class FakeKinematics:
     size = 14
+    lower = (-1.0,) * 14
+    upper = (1.0,) * 14
     keys = tuple(
         [f"left_joint_{index}.q" for index in range(7)]
         + [f"right_joint_{index}.q" for index in range(7)]
@@ -151,6 +153,30 @@ def test_measured_arm_state_must_be_14_finite_values(measured, error):
     actual, _ = make_retargeter()
     with pytest.raises(error):
         actual.retarget(sample(), measured)
+
+
+def test_small_measured_limit_overshoot_is_clipped_and_diagnosed():
+    actual, _ = make_retargeter()
+    measured = (1.01,) + (0.0,) * 13
+
+    result = actual.retarget(sample(), measured)
+
+    assert result.action["left_joint_0.q"] == 1.0
+    assert result.diagnostics.seed_clipped
+    assert result.diagnostics.maximum_seed_limit_violation_rad == pytest.approx(0.01)
+
+
+def test_large_measured_limit_overshoot_is_rejected():
+    actual, _ = make_retargeter()
+    measured = (1.051,) + (0.0,) * 13
+
+    with pytest.raises(ValueError, match="above the configured"):
+        actual.retarget(sample(), measured)
+
+
+def test_seed_limit_tolerance_must_be_nonnegative_and_finite():
+    with pytest.raises(ValueError, match="seed_limit_tolerance_rad"):
+        G1RetargeterConfig("/tmp/g1_29.urdf", seed_limit_tolerance_rad=-0.01)
 
 
 def test_wrong_embodiment_and_wrong_kinematics_size_fail_before_control():
