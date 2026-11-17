@@ -8,6 +8,7 @@ from .cloudxr import (
     CloudXRSourceConfig,
 )
 from .codec import sample_from_dict, sample_to_dict
+from .selection import XRSourceKind, XRSourceSelection, build_xr_source
 from .source import XRInputSource, XRSourceNotConnectedError
 from .status import XRSourceState, XRSourceStatus
 from .trace import (
@@ -48,7 +49,9 @@ __all__ = [
     "XRInputSource",
     "XRPose",
     "XRSample",
+    "XRSourceKind",
     "XRSourceNotConnectedError",
+    "XRSourceSelection",
     "XRSourceState",
     "XRSourceStatus",
     "XRTraceError",
@@ -59,6 +62,7 @@ __all__ = [
     "XRoboToolkitSDK",
     "XRoboToolkitSource",
     "XRoboToolkitSourceConfig",
+    "build_xr_source",
     "sample_from_dict",
     "sample_to_dict",
 ]
