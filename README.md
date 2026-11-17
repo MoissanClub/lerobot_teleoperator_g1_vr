@@ -3,8 +3,8 @@
 Reusable XR input sources, interaction state, G1 retargeter adapters, and a
 third-party LeRobot teleoperator plugin.
 
-The project is under active development. Its first supported path will be
-XRoboToolkit controller input to G1-29 MuJoCo simulation. The architecture keeps
+The reviewed candidate supports XRoboToolkit or CloudXR controller input to
+G1-29 MuJoCo simulation, plus deterministic trace replay. The architecture keeps
 the input source independent of the robot embodiment so CloudXR and G1-23 can be
 added without duplicating the control stack.
 
@@ -31,7 +31,7 @@ source.disconnect()
 - values are copied into immutable tuples/mappings at the boundary.
 
 The contract has no XRoboToolkit, CloudXR, GPU, MuJoCo, or physical-device
-dependency. Source adapters and G1 retargeting are added in later commits.
+dependency. Vendor SDKs remain lazy optional runtime dependencies.
 
 ## Trace-driven development
 
@@ -116,6 +116,17 @@ tests can inject compatible kinematics/control components.
 Manual headset requirements for both sources are tracked in
 [headset verification by commit](docs/headset-verification-by-commit.md).
 
+## Reviewed G1-29 simulation candidate
+
+The standard LeRobot plugin type is `g1_vr`. It accepts measured G1 arm joint
+feedback before every action and composes the selected source, shared freshness/
+re-clutch guard, and G1-29 retargeter. `simulation_only=True` is enforced; this
+candidate does not authorize physical G1 operation.
+
+See the [reviewed workflow](docs/g1-29-simulation-workflow.md) for pinned
+revisions and commands, and the [efficient simulation-lab acceptance plan](docs/simulation-lab-acceptance.md)
+for the pending headset verification.
+
 ## Development
 
 Python 3.12 or newer and [uv](https://docs.astral.sh/uv/) are recommended:
@@ -127,8 +138,9 @@ uv run --extra test ruff format --check .
 uv build
 ```
 
-The base package is intentionally vendor-free. Optional SDK dependency groups
-will be introduced with their corresponding adapters.
+The base package is intentionally vendor-free. XRoboToolkit SDK 1.1.0 may be
+loaded from its isolated site-packages directory; the path is appended so it
+does not shadow the pinned NumPy/Pinocchio/MuJoCo stack.
 
 ## License
 
