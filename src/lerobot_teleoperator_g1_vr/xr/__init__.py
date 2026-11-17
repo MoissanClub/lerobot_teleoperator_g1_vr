@@ -1,6 +1,12 @@
 """Source-neutral XR value objects and source lifecycle."""
 
 from .clock import AdvanceableClock, Clock, DeterministicClock, SystemClock
+from .cloudxr import (
+    CloudXRDependencyError,
+    CloudXRReader,
+    CloudXRSource,
+    CloudXRSourceConfig,
+)
 from .codec import sample_from_dict, sample_to_dict
 from .source import XRInputSource, XRSourceNotConnectedError
 from .status import XRSourceState, XRSourceStatus
@@ -20,6 +26,10 @@ from .types import XRController, XRPose, XRSample, XRTrackedPose
 __all__ = [
     "AdvanceableClock",
     "Clock",
+    "CloudXRDependencyError",
+    "CloudXRReader",
+    "CloudXRSource",
+    "CloudXRSourceConfig",
     "DeterministicClock",
     "ReplayMode",
     "SystemClock",

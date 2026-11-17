@@ -74,6 +74,33 @@ timestamp. Replays are currently restricted to the `simulation` target.
 See [the version 1 trace format](docs/trace-format-v1.md) for artifact layout,
 integrity rules, and evidence limitations.
 
+## CloudXR source adapter
+
+`CloudXRSource` wraps the established LeRobot `XRControllers` reader behind the
+normalized contract. Importing the plugin does not import LeRobot, Isaac Teleop,
+OpenXR, CUDA, or video code. The default reader resolves those optional
+dependencies only during `connect()`; tests and alternate integrations can
+inject a narrow reader factory.
+
+```python
+from lerobot_teleoperator_g1_vr import CloudXRSource, CloudXRSourceConfig
+
+source = CloudXRSource(CloudXRSourceConfig(max_age_s=0.25))
+source.connect()
+sample = source.sample()
+source.disconnect()
+```
+
+Set `video_channel` to use the pinned LeRobot shared controller/video session.
+Leave it `None` for controller input only. The source performs one backend read
+per sample, preserves the backend acquisition timestamp, rejects future/stale
+frames, and isolates invalid data to the affected hand. `last_raw_action` returns
+a defensive JSON-compatible copy suitable for `TraceRecorder`.
+
+The adapter does not launch or own CloudXR. Runtime installation, EULA handling,
+process supervision, and video production remain responsibilities of the
+integration harness.
+
 ## Development
 
 Python 3.12 or newer and [uv](https://docs.astral.sh/uv/) are recommended:

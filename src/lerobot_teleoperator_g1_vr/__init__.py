@@ -3,6 +3,10 @@
 from .xr import (
     AdvanceableClock,
     Clock,
+    CloudXRDependencyError,
+    CloudXRReader,
+    CloudXRSource,
+    CloudXRSourceConfig,
     DeterministicClock,
     ReplayMode,
     SystemClock,
@@ -29,6 +33,10 @@ from .xr import (
 __all__ = [
     "AdvanceableClock",
     "Clock",
+    "CloudXRDependencyError",
+    "CloudXRReader",
+    "CloudXRSource",
+    "CloudXRSourceConfig",
     "DeterministicClock",
     "ReplayMode",
     "SystemClock",
