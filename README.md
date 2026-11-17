@@ -101,6 +101,21 @@ The adapter does not launch or own CloudXR. Runtime installation, EULA handling,
 process supervision, and video production remain responsibilities of the
 integration harness.
 
+## G1-29 retargeting
+
+`G129Retargeter` is a thin adapter over the supported LeRobot
+`G1ArmKinematics`/`G1XRControl`; the plugin does not copy the solver. It consumes
+any normalized `XRSample`, accepts the measured 14-arm-joint state as its seed,
+and returns named joint actions plus clutch and IK diagnostics. G1-23 is rejected
+explicitly until its separate retargeter/model contract is implemented.
+
+The base package still has no LeRobot runtime dependency. Constructing the
+default G1-29 retargeter resolves the supported LeRobot integration lazily; unit
+tests can inject compatible kinematics/control components.
+
+Manual headset requirements for both sources are tracked in
+[headset verification by commit](docs/headset-verification-by-commit.md).
+
 ## Development
 
 Python 3.12 or newer and [uv](https://docs.astral.sh/uv/) are recommended:

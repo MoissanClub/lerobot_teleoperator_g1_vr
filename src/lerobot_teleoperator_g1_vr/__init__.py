@@ -1,5 +1,13 @@
 """Composable VR input and G1 retargeting for LeRobot."""
 
+from .retargeting import (
+    G1RetargetDiagnostics,
+    G1Retargeter,
+    G1RetargeterConfig,
+    G1RetargetingDependencyError,
+    G1RetargetResult,
+    G129Retargeter,
+)
 from .xr import (
     AdvanceableClock,
     Clock,
@@ -38,6 +46,12 @@ __all__ = [
     "CloudXRSource",
     "CloudXRSourceConfig",
     "DeterministicClock",
+    "G1RetargetDiagnostics",
+    "G1RetargetResult",
+    "G1Retargeter",
+    "G1RetargeterConfig",
+    "G1RetargetingDependencyError",
+    "G129Retargeter",
     "ReplayMode",
     "SystemClock",
     "TraceFrame",
