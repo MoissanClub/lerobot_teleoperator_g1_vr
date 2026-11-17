@@ -1,6 +1,16 @@
 """Composable VR input and G1 retargeting for LeRobot."""
 
 from .xr import (
+    AdvanceableClock,
+    Clock,
+    DeterministicClock,
+    ReplayMode,
+    SystemClock,
+    TraceFrame,
+    TraceManifestSeed,
+    TraceReader,
+    TraceRecorder,
+    TraceReplaySource,
     XRController,
     XRInputSource,
     XRPose,
@@ -8,10 +18,25 @@ from .xr import (
     XRSourceNotConnectedError,
     XRSourceState,
     XRSourceStatus,
+    XRTraceError,
+    XRTraceExhaustedError,
+    XRTraceIntegrityError,
     XRTrackedPose,
+    sample_from_dict,
+    sample_to_dict,
 )
 
 __all__ = [
+    "AdvanceableClock",
+    "Clock",
+    "DeterministicClock",
+    "ReplayMode",
+    "SystemClock",
+    "TraceFrame",
+    "TraceManifestSeed",
+    "TraceReader",
+    "TraceRecorder",
+    "TraceReplaySource",
     "XRController",
     "XRInputSource",
     "XRPose",
@@ -19,7 +44,12 @@ __all__ = [
     "XRSourceNotConnectedError",
     "XRSourceState",
     "XRSourceStatus",
+    "XRTraceError",
+    "XRTraceExhaustedError",
+    "XRTraceIntegrityError",
     "XRTrackedPose",
+    "sample_from_dict",
+    "sample_to_dict",
 ]
 
 __version__ = "0.1.0"

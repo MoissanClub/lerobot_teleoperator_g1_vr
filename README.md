@@ -33,6 +33,47 @@ source.disconnect()
 The contract has no XRoboToolkit, CloudXR, GPU, MuJoCo, or physical-device
 dependency. Source adapters and G1 retargeting are added in later commits.
 
+## Trace-driven development
+
+The trace boundary is part of the plugin architecture. `TraceRecorder` writes
+raw source values and normalized `XRSample` values together; `TraceReplaySource`
+then presents the normalized stream through the same `XRInputSource` interface as
+a live headset:
+
+```python
+from lerobot_teleoperator_g1_vr import (
+    DeterministicClock,
+    TraceManifestSeed,
+    TraceReader,
+    TraceRecorder,
+    TraceReplaySource,
+)
+
+with TraceRecorder(
+    "trace-idle",
+    TraceManifestSeed(
+        trace_id="trace-idle",
+        label="idle-released",
+        source_type="synthetic",
+        source_adapter_revision="example",
+        coordinate_frame="normalized right-handed XR frame",
+    ),
+) as recorder:
+    recorder.record(sample, raw_payload={"vendor_value": 1})
+
+clock = DeterministicClock()
+source = TraceReplaySource(TraceReader("trace-idle"), clock=clock)
+source.connect()
+replayed = source.sample()
+```
+
+Deterministic mode advances an injected clock without sleeping. Real-time mode
+preserves recorded elapsed timing while replacing the original absolute host
+timestamp. Replays are currently restricted to the `simulation` target.
+
+See [the version 1 trace format](docs/trace-format-v1.md) for artifact layout,
+integrity rules, and evidence limitations.
+
 ## Development
 
 Python 3.12 or newer and [uv](https://docs.astral.sh/uv/) are recommended:
@@ -41,6 +82,7 @@ Python 3.12 or newer and [uv](https://docs.astral.sh/uv/) are recommended:
 uv run --extra test pytest -q
 uv run --extra test ruff check .
 uv run --extra test ruff format --check .
+uv build
 ```
 
 The base package is intentionally vendor-free. Optional SDK dependency groups
